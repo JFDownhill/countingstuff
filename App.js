@@ -30,9 +30,13 @@ export default function App() {
   }, [countables, isLoaded]);
 
   const changeCount = (amount, index) => {
-    const newState = [...countables];
-    newState[index].count += amount;
-    setCountables(newState);
+    setCountables((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? { ...item, count: Math.max(0, item.count + amount) }
+          : item,
+      )
+    );
   };
 
   const addNewCountable = (name) => {
@@ -40,20 +44,26 @@ export default function App() {
     setCountables(newState);
   };
 
+  const removeCountable = (index) => {
+    const newState = countables.filter((_, i) => i !== index);
+    setCountables(newState);
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "undefined"}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.container}
         >
           <ScrollView>
             {countables.map((countable, index) => (
               <CountableRow
-                countable={countable}
                 key={countable.name}
+                countable={countable}
                 changeCount={changeCount}
                 index={index}
+                removeCountable={removeCountable}
               />
             ))}
           </ScrollView>
